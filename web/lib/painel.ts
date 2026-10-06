@@ -1,7 +1,7 @@
 import { visaoDaQuery, type Visao } from "@/lib/navigation";
-import painelBR from "@/data/painel-BR.json";
-import painelPY from "@/data/painel-PY.json";
-import painelAmbos from "@/data/painel-BR-PY.json";
+import painelBR from "@/fechamento/painel-BR.json";
+import painelPY from "@/fechamento/painel-PY.json";
+import painelAmbos from "@/fechamento/painel-BR-PY.json";
 
 export type Indicador = {
   chave: string;
