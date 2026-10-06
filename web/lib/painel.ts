@@ -1,4 +1,7 @@
 import { visaoDaQuery, type Visao } from "@/lib/navigation";
+import painelBR from "@/data/painel-BR.json";
+import painelPY from "@/data/painel-PY.json";
+import painelAmbos from "@/data/painel-BR-PY.json";
 
 export type Indicador = {
   chave: string;
@@ -102,11 +105,22 @@ export type Painel = {
   sac: { kpis: Kpi[]; nota: string };
 };
 
+const PUBLICADO: Record<Visao, Painel> = {
+  BR: painelBR as Painel,
+  PY: painelPY as Painel,
+  "BR+PY": painelAmbos as Painel,
+};
+
 export async function carregarPainel(valor: string | undefined): Promise<Painel> {
   const visao = visaoDaQuery(valor ?? null);
-  const resposta = await fetch(`http://127.0.0.1:8000/api/painel?visao=${encodeURIComponent(visao)}`, {
-    cache: "no-store",
-  });
-  if (!resposta.ok) throw new Error("fechamento indisponível");
-  return resposta.json() as Promise<Painel>;
+  const base = process.env.PAINEL_API ?? (process.env.VERCEL ? "" : "http://127.0.0.1:8000");
+  if (base) {
+    try {
+      const resposta = await fetch(`${base}/api/painel?visao=${encodeURIComponent(visao)}`, { cache: "no-store" });
+      if (resposta.ok) return resposta.json() as Promise<Painel>;
+    } catch {
+      /* Sem a API local, a tela usa o fechamento publicado. */
+    }
+  }
+  return PUBLICADO[visao];
 }
